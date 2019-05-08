@@ -6,18 +6,30 @@ import fr.bmartel.speedtest.SpeedTestReport
 import fr.bmartel.speedtest.SpeedTestSocket
 import fr.bmartel.speedtest.inter.ISpeedTestListener
 import fr.bmartel.speedtest.model.SpeedTestError
+import fr.bmartel.speedtest.model.SpeedTestMode
 import java.util.concurrent.locks.ReentrantLock
 
 abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, String?>() {
 
+    private val speedTestUrl = "http://ipv4.ikoula.testdebit.info/1M.iso"
+    private val uploadSize = 1000000
+
+    private val testSocket = SpeedTestSocket()
+    private val lock = ReentrantLock()
+    private val condition = lock.newCondition()
+
     private val listener: ISpeedTestListener = object : ISpeedTestListener {
         override fun onCompletion(report: SpeedTestReport?) {
-            lock.lock()
+            if (report?.speedTestMode == SpeedTestMode.UPLOAD) {
+                lock.lock()
+                Log.v("speedTestComplete", "Upload Complete")
+                condition.signalAll()
+                lock.unlock()
+            } else {
+                Log.v("speedTestComplete", "Download Complete")
+                testSocket.startUpload(speedTestUrl, uploadSize)
+            }
 
-            Log.v("speedTestComplete", "Complete")
-
-            condition.signalAll()
-            lock.unlock()
         }
 
         override fun onProgress(percent: Float, report: SpeedTestReport?) {
@@ -25,23 +37,20 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, String?>() {
         }
 
         override fun onError(speedTestError: SpeedTestError?, errorMessage: String?) {
+            lock.lock()
             Log.v("speedTestErr", errorMessage)
             condition.signalAll()
+            lock.unlock()
         }
 
     }
-
-
-    private val testSocket = SpeedTestSocket()
-    private val lock = ReentrantLock()
-    private val condition = lock.newCondition()
 
     override fun doInBackground(vararg params: Void?): String? {
 
         lock.lock()
 
         testSocket.addSpeedTestListener(listener)
-        testSocket.startDownload("http://ipv4.ikoula.testdebit.info/1M.iso")
+        testSocket.startDownload(speedTestUrl)
         Log.v("ff", "locked")
         condition.await()
 
@@ -51,9 +60,11 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, String?>() {
 
     override fun onProgressUpdate(vararg values: SpeedTestReport?) {
         super.onProgressUpdate(*values)
-        Log.v("asyncTask", "progressUpdate: " + values[0]?.progressPercent.toString())
+        Log.v(
+            "asyncTask",
+            "progressUpdate: " + values[0]?.speedTestMode.toString() + " " + values[0]?.progressPercent.toString()
+        )
     }
-
 
     override fun onPostExecute(result: String?) {
         super.onPostExecute(result)

@@ -12,6 +12,7 @@ import android.widget.ProgressBar
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import fr.bmartel.speedtest.SpeedTestReport
+import fr.bmartel.speedtest.model.SpeedTestMode
 
 
 class HomeFragment : Fragment() {
@@ -29,6 +30,7 @@ class HomeFragment : Fragment() {
         override fun onProgressUpdate(vararg values: SpeedTestReport?) {
             super.onProgressUpdate(*values)
             val percent = values[0]?.progressPercent
+            values[0]?.speedTestMode == SpeedTestMode.DOWNLOAD
             model.setProgress(percent!!)
         }
 
