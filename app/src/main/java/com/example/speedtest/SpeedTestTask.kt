@@ -1,18 +1,29 @@
 package com.example.speedtest
 
+import android.content.Context
+import android.location.Location
 import android.os.AsyncTask
+import android.telephony.TelephonyManager
 import android.util.Log
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.tasks.Tasks
 import fr.bmartel.speedtest.SpeedTestReport
 import fr.bmartel.speedtest.SpeedTestSocket
 import fr.bmartel.speedtest.inter.ISpeedTestListener
 import fr.bmartel.speedtest.model.SpeedTestError
 import fr.bmartel.speedtest.model.SpeedTestMode
+import java.lang.ref.WeakReference
 import java.util.concurrent.locks.ReentrantLock
 
-abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, Void?>() {
+abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport, Void?>() {
+
+    protected val contextRef: WeakReference<Context> = WeakReference(context)
 
     private val speedTestUrl = "http://ipv4.ikoula.testdebit.info/1M.iso"
     private val uploadSize = 1000000
+    private val testDuration = 8000
+    private val reportInterval = 100
+    private val uploadChunkSize = 65565
 
     private val testSocket = SpeedTestSocket()
     private val lock = ReentrantLock()
@@ -20,6 +31,8 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, Void?>() {
 
     protected var uploadReport: SpeedTestReport? = null
     protected var downloadReport: SpeedTestReport? = null
+    protected var currentLocation: Location? = null
+    protected var carrierName: String? = null
 
     private val listener: ISpeedTestListener = object : ISpeedTestListener {
         override fun onCompletion(report: SpeedTestReport?) {
@@ -32,7 +45,7 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, Void?>() {
             } else {
                 Log.v("speedTestComplete", "Download Complete")
                 downloadReport = report
-                testSocket.startFixedUpload(speedTestUrl, uploadSize, 5000, 100)
+                testSocket.startFixedUpload(speedTestUrl, uploadSize, testDuration, reportInterval)
             }
 
         }
@@ -52,10 +65,22 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, Void?>() {
 
     override fun doInBackground(vararg params: Void?): Void? {
 
+        contextRef.get()?.let {
+            try {
+                Log.v("location", "getting location")
+                currentLocation = Tasks.await(LocationServices.getFusedLocationProviderClient(it).lastLocation)
+                val tm = (it.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager)
+                carrierName = tm.networkOperatorName
+            } catch (e: SecurityException) {
+
+            }
+        }
+
         lock.lock()
-        testSocket.uploadChunkSize = 8096
+        testSocket.uploadChunkSize = uploadChunkSize
         testSocket.addSpeedTestListener(listener)
-        testSocket.startFixedDownload(speedTestUrl, 5000, 100)
+        testSocket.startFixedDownload(speedTestUrl, testDuration, reportInterval)
+
         condition.await()
         lock.unlock()
 
@@ -78,6 +103,7 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, Void?>() {
     override fun onPreExecute() {
         super.onPreExecute()
         Log.v("asyncTask", "preExecute")
+
     }
 
 }

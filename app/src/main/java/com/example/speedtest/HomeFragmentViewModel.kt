@@ -11,9 +11,19 @@ class HomeFragmentViewModel : ViewModel() {
     private val uploadRate: MutableLiveData<Double> = MutableLiveData()
     private val downloading: MutableLiveData<Boolean> = MutableLiveData()
     private val isTesting: MutableLiveData<Boolean> = MutableLiveData()
+    private val locationText: MutableLiveData<String> = MutableLiveData()
+    private val carrierText: MutableLiveData<String> = MutableLiveData()
 
     fun getProgress(): LiveData<Double> {
         return percent
+    }
+
+    fun getLocationText(): LiveData<String> {
+        return locationText
+    }
+
+    fun getCarrierText(): LiveData<String> {
+        return carrierText
     }
 
     fun getDownloadRate(): LiveData<Double> {
@@ -58,5 +68,13 @@ class HomeFragmentViewModel : ViewModel() {
 
     fun setIsTesting(value: Boolean) {
         isTesting.postValue(value)
+    }
+
+    fun setLocationText(value: String) {
+        locationText.postValue(value)
+    }
+
+    fun setCarrierText(value: String) {
+        carrierText.postValue(value)
     }
 }

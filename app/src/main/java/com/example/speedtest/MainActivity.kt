@@ -1,10 +1,12 @@
 package com.example.speedtest
 
+import android.Manifest
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity(), TitleSettable {
 
@@ -44,5 +46,11 @@ class MainActivity : AppCompatActivity(), TitleSettable {
 
         navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment?
         navController = navHostFragment?.navController
+
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+            1
+        )
     }
 }
