@@ -32,7 +32,7 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, Void?>() {
             } else {
                 Log.v("speedTestComplete", "Download Complete")
                 downloadReport = report
-                testSocket.startUpload(speedTestUrl, uploadSize, 100)
+                testSocket.startFixedUpload(speedTestUrl, uploadSize, 5000, 100)
             }
 
         }
@@ -55,7 +55,7 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, Void?>() {
         lock.lock()
         testSocket.uploadChunkSize = 8096
         testSocket.addSpeedTestListener(listener)
-        testSocket.startDownload(speedTestUrl, 100)
+        testSocket.startFixedDownload(speedTestUrl, 5000, 100)
         condition.await()
         lock.unlock()
 

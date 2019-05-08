@@ -63,7 +63,6 @@ class HomeFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         button = view.findViewById(R.id.button2)
-        progressBar = view.findViewById(R.id.progressBar)
         circularProgress = view.findViewById(R.id.circularProgress)
         uploadLabel = view.findViewById(R.id.upload_rate_label)
         downloadLabel = view.findViewById(R.id.download_rate_label)
