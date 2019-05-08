@@ -9,7 +9,7 @@ import fr.bmartel.speedtest.model.SpeedTestError
 import fr.bmartel.speedtest.model.SpeedTestMode
 import java.util.concurrent.locks.ReentrantLock
 
-abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, String?>() {
+abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, Void?>() {
 
     private val speedTestUrl = "http://ipv4.ikoula.testdebit.info/1M.iso"
     private val uploadSize = 1000000
@@ -18,16 +18,21 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, String?>() {
     private val lock = ReentrantLock()
     private val condition = lock.newCondition()
 
+    protected var uploadReport: SpeedTestReport? = null
+    protected var downloadReport: SpeedTestReport? = null
+
     private val listener: ISpeedTestListener = object : ISpeedTestListener {
         override fun onCompletion(report: SpeedTestReport?) {
             if (report?.speedTestMode == SpeedTestMode.UPLOAD) {
                 lock.lock()
                 Log.v("speedTestComplete", "Upload Complete")
+                uploadReport = report
                 condition.signalAll()
                 lock.unlock()
             } else {
                 Log.v("speedTestComplete", "Download Complete")
-                testSocket.startUpload(speedTestUrl, uploadSize)
+                downloadReport = report
+                testSocket.startUpload(speedTestUrl, uploadSize, 100)
             }
 
         }
@@ -45,16 +50,15 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, String?>() {
 
     }
 
-    override fun doInBackground(vararg params: Void?): String? {
+    override fun doInBackground(vararg params: Void?): Void? {
 
         lock.lock()
-
+        testSocket.uploadChunkSize = 8096
         testSocket.addSpeedTestListener(listener)
-        testSocket.startDownload(speedTestUrl)
-        Log.v("ff", "locked")
+        testSocket.startDownload(speedTestUrl, 100)
         condition.await()
-
         lock.unlock()
+
         return null
     }
 
@@ -66,7 +70,7 @@ abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, String?>() {
         )
     }
 
-    override fun onPostExecute(result: String?) {
+    override fun onPostExecute(result: Void?) {
         super.onPostExecute(result)
         Log.v("asyncTask", "postExecute")
     }

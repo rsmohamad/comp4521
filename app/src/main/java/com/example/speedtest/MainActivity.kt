@@ -21,11 +21,14 @@ class MainActivity : AppCompatActivity(), TitleSettable {
                 navController?.navigate(R.id.homeFragment)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_dashboard -> {
+            R.id.navigation_timed -> {
                 navController?.navigate(R.id.settingFragment)
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_notifications -> {
+            R.id.navigation_geofences -> {
+                return@OnNavigationItemSelectedListener true
+            }
+            R.id.navigation_logs -> {
                 return@OnNavigationItemSelectedListener true
             }
         }
