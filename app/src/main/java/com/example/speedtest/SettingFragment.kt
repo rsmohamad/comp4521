@@ -33,10 +33,4 @@ class SettingFragment : Fragment() {
 
         }
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            SettingFragment().apply { arguments = Bundle().apply { } }
-    }
 }

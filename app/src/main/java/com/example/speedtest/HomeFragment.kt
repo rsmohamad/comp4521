@@ -9,10 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.ProgressBar
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import fr.bmartel.speedtest.SpeedTestReport
-import fr.bmartel.speedtest.inter.ISpeedTestListener
-import fr.bmartel.speedtest.model.SpeedTestError
-import java.lang.ClassCastException
 
 
 class HomeFragment : Fragment() {
@@ -20,18 +19,22 @@ class HomeFragment : Fragment() {
     private var progressBar: ProgressBar? = null
     private var button: Button? = null
 
-    inner class TestListener : ISpeedTestListener {
-        override fun onCompletion(report: SpeedTestReport?) {
-            System.out.println("Complete")
+    private class HomeSpeedTest(private val model: HomeFragmentViewModel) : SpeedTestTask() {
+
+        override fun onPreExecute() {
+            super.onPreExecute()
+            model.setButtonEnabled(false)
         }
 
-        override fun onProgress(percent: Float, report: SpeedTestReport?) {
-            progressBar?.progress = percent.toInt()
-            Log.v("speedTestProg", "Progress: $percent")
+        override fun onProgressUpdate(vararg values: SpeedTestReport?) {
+            super.onProgressUpdate(*values)
+            val percent = values[0]?.progressPercent
+            model.setProgress(percent!!)
         }
 
-        override fun onError(speedTestError: SpeedTestError?, errorMessage: String?) {
-            Log.v("speedTestErr", errorMessage)
+        override fun onPostExecute(result: String?) {
+            super.onPostExecute(result)
+            model.setButtonEnabled(true)
         }
     }
 
@@ -47,6 +50,10 @@ class HomeFragment : Fragment() {
     override fun onAttach(context: Context?) {
         super.onAttach(context)
 
+        val model = getViewModel()
+        model.getProgress().observe(this, Observer<Float> { progress -> progressBar?.progress = progress.toInt() })
+        model.isButtonEnabled().observe(this, Observer<Boolean> { enabled -> button?.isEnabled = enabled })
+
         try {
             (context as TitleSettable).setActionBarTitle("Home")
         } catch (e: ClassCastException) {
@@ -54,15 +61,13 @@ class HomeFragment : Fragment() {
         }
     }
 
+    private fun getViewModel(): HomeFragmentViewModel {
+        return ViewModelProviders.of(activity!!).get(HomeFragmentViewModel::class.java)
+    }
+
     private fun onButtonPressed() {
         Log.v("buttonPress", "Button pressed")
-        SpeedTestTask(TestListener()).execute()
+        HomeSpeedTest(getViewModel()).execute()
     }
 
-
-    companion object {
-        @JvmStatic
-        fun newInstance() =
-            HomeFragment().apply { arguments = Bundle().apply { } }
-    }
 }

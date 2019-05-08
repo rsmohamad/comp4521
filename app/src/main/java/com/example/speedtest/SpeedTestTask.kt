@@ -1,18 +1,68 @@
 package com.example.speedtest
 
 import android.os.AsyncTask
+import android.util.Log
+import fr.bmartel.speedtest.SpeedTestReport
 import fr.bmartel.speedtest.SpeedTestSocket
 import fr.bmartel.speedtest.inter.ISpeedTestListener
+import fr.bmartel.speedtest.model.SpeedTestError
+import java.util.concurrent.locks.ReentrantLock
 
-class SpeedTestTask(l: ISpeedTestListener) : AsyncTask<Void, Void, String?>() {
+abstract class SpeedTestTask : AsyncTask<Void, SpeedTestReport, String?>() {
 
-    private val listener: ISpeedTestListener = l
-    private val testSocket: SpeedTestSocket = SpeedTestSocket()
+    private val listener: ISpeedTestListener = object : ISpeedTestListener {
+        override fun onCompletion(report: SpeedTestReport?) {
+            lock.lock()
+
+            Log.v("speedTestComplete", "Complete")
+
+            condition.signalAll()
+            lock.unlock()
+        }
+
+        override fun onProgress(percent: Float, report: SpeedTestReport?) {
+            publishProgress(report)
+        }
+
+        override fun onError(speedTestError: SpeedTestError?, errorMessage: String?) {
+            Log.v("speedTestErr", errorMessage)
+            condition.signalAll()
+        }
+
+    }
+
+
+    private val testSocket = SpeedTestSocket()
+    private val lock = ReentrantLock()
+    private val condition = lock.newCondition()
 
     override fun doInBackground(vararg params: Void?): String? {
+
+        lock.lock()
+
         testSocket.addSpeedTestListener(listener)
-        testSocket.startDownload("http://ipv4.ikoula.testdebit.info/1M.iso");
+        testSocket.startDownload("http://ipv4.ikoula.testdebit.info/1M.iso")
+        Log.v("ff", "locked")
+        condition.await()
+
+        lock.unlock()
         return null
+    }
+
+    override fun onProgressUpdate(vararg values: SpeedTestReport?) {
+        super.onProgressUpdate(*values)
+        Log.v("asyncTask", "progressUpdate: " + values[0]?.progressPercent.toString())
+    }
+
+
+    override fun onPostExecute(result: String?) {
+        super.onPostExecute(result)
+        Log.v("asyncTask", "postExecute")
+    }
+
+    override fun onPreExecute() {
+        super.onPreExecute()
+        Log.v("asyncTask", "preExecute")
     }
 
 }
