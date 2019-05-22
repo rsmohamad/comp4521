@@ -8,8 +8,8 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.speedtest"
-        minSdkVersion 24
-        targetSdkVersion 28
+        minSdkVersion 26
+        targetSdkVersion 26
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -39,4 +39,5 @@ dependencies {
     implementation "android.arch.lifecycle:extensions:1.1.1"
     annotationProcessor "android.arch.lifecycle:compiler:1.1.1"
     implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
 }

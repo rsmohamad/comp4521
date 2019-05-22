@@ -90,13 +90,8 @@ class HomeFragment : Fragment() {
 
     override fun onAttach(context: Context?) {
         super.onAttach(context)
+        (context as TitleSettable).setActionBarTitle("Home")
         attachUiToViewModel()
-
-        try {
-            (context as TitleSettable).setActionBarTitle("Home")
-        } catch (e: ClassCastException) {
-
-        }
     }
 
     private fun attachUiToViewModel() {

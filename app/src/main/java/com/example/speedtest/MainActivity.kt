@@ -24,13 +24,15 @@ class MainActivity : AppCompatActivity(), TitleSettable {
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_timed -> {
-                navController?.navigate(R.id.settingFragment)
+                navController?.navigate(R.id.timedTestFragment)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_geofences -> {
+                navController?.navigate(R.id.geofenceFragment)
                 return@OnNavigationItemSelectedListener true
             }
             R.id.navigation_logs -> {
+                navController?.navigate(R.id.logsFragment)
                 return@OnNavigationItemSelectedListener true
             }
         }

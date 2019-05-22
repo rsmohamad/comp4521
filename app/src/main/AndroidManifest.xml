@@ -11,6 +11,7 @@
 
     <uses-feature android:name="android.hardware.location.gps"/>
 
+
     <application
             android:allowBackup="true"
             android:icon="@mipmap/ic_launcher"
@@ -23,10 +24,18 @@
                 android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+
+
         </activity>
+
+        <receiver android:name=".ScheduledTestBroadcastReceiver">
+            <intent-filter>
+                <action android:name="intent_alarm_haha"/>
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>
