@@ -7,11 +7,6 @@ import androidx.lifecycle.ViewModel
 class TimedTestViewModel : ViewModel() {
     private val timedTests: MutableLiveData<List<TimedTestFragment.TimedTest>> = MutableLiveData()
 
-
-    init {
-        timedTests.postValue(ArrayList())
-    }
-
     fun addTest(test: TimedTestFragment.TimedTest) {
         timedTests.value?.let {
             if (it.contains(test))

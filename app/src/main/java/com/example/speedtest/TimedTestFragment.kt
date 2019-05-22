@@ -115,6 +115,7 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
             run {
                 viewAdapter.tests = data
                 viewAdapter.notifyDataSetChanged()
+                saveTests()
             }
         })
         loadTests()
@@ -132,6 +133,15 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
             val arrListType = object : TypeToken<ArrayList<TimedTest>>() {}.type
             val arr = Gson().fromJson<List<TimedTestFragment.TimedTest>>(serializedArr, arrListType)
             getViewModel().setSchedules(arr)
+        }
+    }
+
+    private fun saveTests() {
+        context?.let {
+            val sharedPref = it.getSharedPreferences("speed_test_app", Context.MODE_PRIVATE)
+            val editor = sharedPref.edit()
+            editor.putString("schedules", Gson().toJson(getViewModel().getSchedules().value))
+            editor.apply()
         }
     }
 }
