@@ -32,7 +32,7 @@
 
         <receiver android:name=".ScheduledTestBroadcastReceiver">
             <intent-filter>
-                <action android:name="intent_alarm_haha"/>
+                <action android:name="@string/alarm_intent"/>
             </intent-filter>
         </receiver>
 
