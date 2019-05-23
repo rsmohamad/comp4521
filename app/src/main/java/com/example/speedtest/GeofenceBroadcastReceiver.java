@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Receiver for geofence transition changes.
@@ -21,10 +22,20 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
      * @param intent  sent by Location Services. This Intent is provided to Location
      *                Services (inside a PendingIntent) when addGeofences() is called.
      */
+
+
+    static class LocationSpeedTestTask extends SpeedTestTask {
+        public LocationSpeedTestTask(@NotNull Context context) {
+            super(context);
+        }
+    }
+
+
     @Override
     public void onReceive(Context context, Intent intent) {
         // Enqueues a JobIntentService passing the context and intent as parameters
-        GeofenceTransitionsJobIntentService.enqueueWork(context, intent);
         Log.v("geofences", "yay");
+        new LocationSpeedTestTask(context).execute();
+
     }
 }

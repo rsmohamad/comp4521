@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.analytics.FirebaseAnalytics
 import java.util.*
 
 class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void> {
@@ -137,6 +138,8 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
+
+        FirebaseAnalytics.getInstance(this)
 
         navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment?
         navController = navHostFragment?.navController
