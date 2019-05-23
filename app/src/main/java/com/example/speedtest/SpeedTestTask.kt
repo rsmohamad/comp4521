@@ -7,6 +7,8 @@ import android.telephony.TelephonyManager
 import android.util.Log
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Tasks
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.FirebaseFirestoreSettings
 import fr.bmartel.speedtest.SpeedTestReport
 import fr.bmartel.speedtest.SpeedTestSocket
 import fr.bmartel.speedtest.inter.ISpeedTestListener
@@ -14,6 +16,7 @@ import fr.bmartel.speedtest.model.SpeedTestError
 import fr.bmartel.speedtest.model.SpeedTestMode
 import java.lang.ref.WeakReference
 import java.util.concurrent.locks.ReentrantLock
+
 
 abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport, Void?>() {
 
@@ -33,6 +36,7 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
     protected var downloadReport: SpeedTestReport? = null
     protected var currentLocation: Location? = null
     protected var carrierName: String? = null
+    protected var imei: String? = null
 
     private val listener: ISpeedTestListener = object : ISpeedTestListener {
         override fun onCompletion(report: SpeedTestReport?) {
@@ -71,6 +75,7 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
                 currentLocation = Tasks.await(LocationServices.getFusedLocationProviderClient(it).lastLocation)
                 val tm = (it.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager)
                 carrierName = tm.networkOperatorName
+                imei = tm.imei
             } catch (e: SecurityException) {
 
             }
@@ -98,6 +103,7 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
     override fun onPostExecute(result: Void?) {
         super.onPostExecute(result)
         Log.v("asyncTask", "postExecute")
+        storeData()
     }
 
     override fun onPreExecute() {
@@ -106,4 +112,27 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
 
     }
 
+    fun storeData() {
+        val db = FirebaseFirestore.getInstance()
+        db.firestoreSettings = FirebaseFirestoreSettings.Builder().setTimestampsInSnapshotsEnabled(true).build()
+
+
+        val testResult = HashMap<String, Any?>()
+
+        testResult["download_rate"] = downloadReport?.transferRateBit?.toDouble()
+        testResult["upload_rate"] = uploadReport?.transferRateBit?.toDouble()
+        testResult["location_x"] = currentLocation?.longitude
+        testResult["location_y"] = currentLocation?.latitude
+        testResult["location_z"] = currentLocation?.altitude
+        testResult["timestamp"] = System.currentTimeMillis()
+        testResult["provider"] = carrierName
+        testResult["plan_mbps"] = ""
+        testResult["imei"] = imei
+
+        Log.v("firestore", "storing data")
+        db.collection("testResults")
+            .add(testResult)
+            .addOnSuccessListener { Log.v("firestore", "test stored") }
+            .addOnFailureListener { Log.v("firestore", "test store failed") }
+    }
 }

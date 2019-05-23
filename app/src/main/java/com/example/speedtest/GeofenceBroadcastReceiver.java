@@ -15,14 +15,6 @@ import org.jetbrains.annotations.NotNull;
  */
 public class GeofenceBroadcastReceiver extends BroadcastReceiver {
 
-    /**
-     * Receives incoming intents.
-     *
-     * @param context the application context.
-     * @param intent  sent by Location Services. This Intent is provided to Location
-     *                Services (inside a PendingIntent) when addGeofences() is called.
-     */
-
 
     static class LocationSpeedTestTask extends SpeedTestTask {
         public LocationSpeedTestTask(@NotNull Context context) {

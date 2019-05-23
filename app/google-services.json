@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "831247336708",
+    "firebase_url": "https://speedtest-4ee35.firebaseio.com",
+    "project_id": "speedtest-4ee35",
+    "storage_bucket": "speedtest-4ee35.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:831247336708:android:d903c056ceefd5ed",
+        "android_client_info": {
+          "package_name": "com.example.speedtest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "831247336708-ru3jgb17200vtsjqc5posvraab2la2mi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.speedtest",
+            "certificate_hash": "c7f3a0a8dbaeff5b520dc0cc51ce12d103675d19"
+          }
+        },
+        {
+          "client_id": "831247336708-pfmo79olr9hp5sn10qe81h3igqmkkac9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHCgDQ_aI5Kq9PMZzvB_CqlX2tkWxp6KI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "831247336708-pfmo79olr9hp5sn10qe81h3igqmkkac9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
