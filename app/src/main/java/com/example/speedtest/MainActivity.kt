@@ -1,7 +1,10 @@
 package com.example.speedtest
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -15,6 +18,8 @@ import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.gms.location.Geofence
@@ -25,7 +30,6 @@ import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
-import com.google.firebase.analytics.FirebaseAnalytics
 import java.util.*
 
 class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void> {
@@ -139,8 +143,6 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
         navView.setOnNavigationItemSelectedListener(onNavigationItemSelectedListener)
 
-        FirebaseAnalytics.getInstance(this)
-
         navHostFragment = supportFragmentManager.findFragmentById(R.id.fragment) as NavHostFragment?
         navController = navHostFragment?.navController
 
@@ -159,16 +161,12 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
         // Get the geofences used. Geofence data is hard coded in this sample.
         populateGeofenceList()
         mGeofencingClient = LocationServices.getGeofencingClient(this)
-    }
 
-    public override fun onStart() {
-        super.onStart()
         if (!checkPermissions()) {
             requestPermissions()
         } else {
             performPendingGeofenceTask()
         }
-
         addGeofences()
     }
 

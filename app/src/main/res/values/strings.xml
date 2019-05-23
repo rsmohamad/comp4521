@@ -54,4 +54,8 @@
         functionality.</string>
     <string name="settings">Settings</string>
 
+    <string name="notification_title">Starting Speed Test</string>
+    <string name="notification_message_time">Speed test is triggered by time</string>
+    <string name="notification_message_location">Speed test is triggered by location</string>
+
 </resources>

@@ -6,10 +6,11 @@ import android.net.ConnectivityManager
 import android.os.AsyncTask
 import android.telephony.TelephonyManager
 import android.util.Log
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.FirebaseFirestoreSettings
 import fr.bmartel.speedtest.SpeedTestReport
 import fr.bmartel.speedtest.SpeedTestSocket
 import fr.bmartel.speedtest.inter.ISpeedTestListener
@@ -118,9 +119,11 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
         super.onPreExecute()
         Log.v("asyncTask", "preExecute")
 
+        contextRef.get()?.let {
+        }
     }
 
-    fun storeData() {
+    private fun storeData() {
         val db = FirebaseFirestore.getInstance()
 
         val testResult = TestResult(

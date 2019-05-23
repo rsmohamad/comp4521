@@ -29,7 +29,7 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
             val rhs: TimedTest
             try {
                 rhs = (other as TimedTest)
-            } catch (e: ClassCastException) {
+            } catch (e: Exception) {
                 return false
             }
             return rhs.time.hour == time.hour && rhs.time.minute == time.minute
@@ -84,9 +84,20 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
         Log.v("scheduled", toRequestCode(hour, minute).toString())
     }
 
+    private fun ensureAlarm() {
+        getViewModel().getSchedules().value
+            ?.filter { s -> s.enabled }
+            ?.map { s -> s.time }
+            ?.forEach { s -> scheduleAlarm(s.hour, s.minute) }
+
+        getViewModel().getSchedules().value
+            ?.filter { s -> !s.enabled }
+            ?.map { s -> s.time }
+            ?.forEach { s -> cancelAlarm(s.hour, s.minute) }
+    }
+
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
         getViewModel().addTest(TimedTest(LocalTime.of(hourOfDay, minute), true))
-        scheduleAlarm(hourOfDay, minute)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -134,6 +145,7 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
             run {
                 viewAdapter.tests = data
                 viewAdapter.notifyDataSetChanged()
+                ensureAlarm()
             }
         })
     }
