@@ -158,6 +158,17 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
         mGeofencingClient = LocationServices.getGeofencingClient(this)
     }
 
+    public override fun onStart() {
+        super.onStart()
+        if (!checkPermissions()) {
+            requestPermissions()
+        } else {
+            performPendingGeofenceTask()
+        }
+
+        addGeofences()
+    }
+
     private fun addGeofences() {
         if (!checkPermissions()) {
             showSnackbar(getString(R.string.insufficient_permissions))
@@ -168,7 +179,7 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
             mGeofencingClient!!.addGeofences(geofencingRequest, geofencePendingIntent)
                 .addOnCompleteListener(this)
         } catch (e: SecurityException) {
-
+            Log.v("addGeofences", e.toString())
         }
     }
 
@@ -212,7 +223,7 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
      * the user's location.
      */
     private fun populateGeofenceList() {
-        for ((key, value) in Constants.BAY_AREA_LANDMARKS) {
+        for ((key, value) in Constants.HKLOCATIONS) {
 
             mGeofenceList!!.add(
                 Geofence.Builder()

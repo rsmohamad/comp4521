@@ -3,6 +3,7 @@ package com.example.speedtest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 /**
  * Receiver for geofence transition changes.
@@ -24,5 +25,6 @@ public class GeofenceBroadcastReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         // Enqueues a JobIntentService passing the context and intent as parameters
         GeofenceTransitionsJobIntentService.enqueueWork(context, intent);
+        Log.v("geofences", "yay");
     }
 }
