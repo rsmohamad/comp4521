@@ -36,4 +36,6 @@ dependencies {
     implementation 'fr.bmartel:jspeedtest:1.32.1'
     implementation 'android.arch.navigation:navigation-fragment:1.0.0'
     implementation 'android.arch.navigation:navigation-ui:1.0.0'
+    implementation 'com.google.android.gms:play-services-location:15.0.1'
+    implementation 'com.google.android.gms:play-services-maps:16.0.0'
 }
