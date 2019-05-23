@@ -37,7 +37,15 @@
             </intent-filter>
         </receiver>
 
-        <service android:name=".GeofenceTransitionsJobIntentService"/>
+        <receiver
+                android:name=".GeofenceBroadcastReceiver"
+                android:enabled="true"
+                android:exported="true"/>
+
+        <service
+                android:name=".GeofenceTransitionsJobIntentService"
+                android:exported="true"
+                android:permission="android.permission.BIND_JOB_SERVICE"/>
 
     </application>
 

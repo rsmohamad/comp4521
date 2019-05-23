@@ -48,7 +48,7 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
     private var mAddGeofencesButton: Button? = null
     private var mRemoveGeofencesButton: Button? = null
 
-    private var mPendingGeofenceTask = PendingGeofenceTask.NONE
+    private var mPendingGeofenceTask = PendingGeofenceTask.ADD
 
     /**
      * Builds and returns a GeofencingRequest. Specifies the list of geofences to be monitored.
