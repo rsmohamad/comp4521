@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import java.time.format.DateTimeFormatter
 
 
-class TimedTestAdapter(var tests: List<TimedTestFragment.TimedTest>?) :
+class TimedTestAdapter(var vm: TimedTestViewModel) :
     RecyclerView.Adapter<TimedTestAdapter.ViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         // create a new view
@@ -18,21 +18,30 @@ class TimedTestAdapter(var tests: List<TimedTestFragment.TimedTest>?) :
     }
 
     override fun getItemCount(): Int {
-        return if (tests == null) 0 else tests!!.size
+        val tests = vm.getSchedules().value
+        return tests?.size ?: 0
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val tests = vm.getSchedules().value
         tests?.let {
-            holder.bindData(it[position])
+            holder.bindData(it[position], position)
         }
     }
 
-    class ViewHolder(val view: View) : RecyclerView.ViewHolder(view) {
+    inner class ViewHolder(private val view: View) : RecyclerView.ViewHolder(view) {
 
-        private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("KK:mm a")
-        fun bindData(data: TimedTestFragment.TimedTest) {
+        private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+        fun bindData(data: TimedTestFragment.TimedTest, position: Int) {
             view.findViewById<TextView>(R.id.timeLabel).text = data.time.format(dateFormatter)
-            view.findViewById<Switch>(R.id.enabled_box).isChecked = data.enabled
+
+            with(view.findViewById<Switch>(R.id.enabled_box)) {
+                isChecked = data.enabled
+                setOnClickListener {run{
+                    vm.updateTest(TimedTestFragment.TimedTest(data.time, isChecked), position)
+                }}
+            }
+
         }
     }
 }

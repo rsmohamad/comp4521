@@ -1,10 +1,7 @@
 package com.example.speedtest
 
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -15,11 +12,8 @@ import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.google.android.gms.location.Geofence
@@ -206,12 +200,6 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
         mPendingGeofenceTask = PendingGeofenceTask.NONE
         if (task.isSuccessful) {
             updateGeofencesAdded(!geofencesAdded)
-
-            val messageId = if (geofencesAdded)
-                R.string.geofences_added
-            else
-                R.string.geofences_removed
-            Toast.makeText(this, getString(messageId), Toast.LENGTH_SHORT).show()
         } else {
             // Get the status code for the error and log it using a user-friendly message.
             val errorMessage = GeofenceErrorMessages.getErrorString(this, task.exception)

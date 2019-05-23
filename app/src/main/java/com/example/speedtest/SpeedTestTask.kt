@@ -6,8 +6,6 @@ import android.net.ConnectivityManager
 import android.os.AsyncTask
 import android.telephony.TelephonyManager
 import android.util.Log
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.Tasks
 import com.google.firebase.firestore.FirebaseFirestore
@@ -99,14 +97,6 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
         lock.unlock()
 
         return null
-    }
-
-    override fun onProgressUpdate(vararg values: SpeedTestReport?) {
-        super.onProgressUpdate(*values)
-        Log.v(
-            "asyncTask",
-            "progressUpdate: " + values[0]?.speedTestMode.toString() + " " + values[0]?.progressPercent.toString()
-        )
     }
 
     override fun onPostExecute(result: Void?) {

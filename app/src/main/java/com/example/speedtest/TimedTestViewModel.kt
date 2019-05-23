@@ -35,13 +35,23 @@ class TimedTestViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun setSchedules(list: List<TimedTestFragment.TimedTest>) {
-        timedTests.postValue(list)
+        timedTests.value = (list)
         saveTests()
     }
 
     fun clearSchedules() {
-        timedTests.postValue(ArrayList())
+        timedTests.value = (ArrayList())
         saveTests()
+    }
+
+    fun updateTest(test: TimedTestFragment.TimedTest, position: Int) {
+        timedTests.value?.let {
+            if (it.contains(test))
+                it.toMutableList().apply { this[position] = test }
+            else
+                it
+
+        }?.let { setSchedules(it) }
     }
 
     private fun loadTests() {

@@ -47,22 +47,34 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
         return hour * 100 + minute
     }
 
+    private fun createAlarmIntent(): Intent {
+        return Intent(context, ScheduledTestBroadcastReceiver::class.java).apply { action = INTENT_ALARM }
+    }
+
     private fun cancelAlarm(hour: Int, minute: Int) {
-        val alarmIntent = Intent(context, ScheduledTestBroadcastReceiver::class.java)
-            .apply { action = INTENT_ALARM }
+        var alarmIntent = createAlarmIntent()
             .let {
                 PendingIntent.getBroadcast(context, toRequestCode(hour, minute), it, PendingIntent.FLAG_UPDATE_CURRENT)
             }
 
         val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmManager.cancel(alarmIntent)
+        alarmIntent.cancel()
+
         Log.v("cancelled", toRequestCode(hour, minute).toString())
     }
 
     private fun scheduleAlarm(hour: Int, minute: Int) {
 
-        val alarmIntent = Intent(context, ScheduledTestBroadcastReceiver::class.java)
-            .apply { action = INTENT_ALARM }
+        val isAlarmCreated = createAlarmIntent()
+            .let {
+                PendingIntent.getBroadcast(context, toRequestCode(hour, minute), it, PendingIntent.FLAG_NO_CREATE)
+            } != null
+
+        if (isAlarmCreated)
+            return
+
+        val alarmIntent = createAlarmIntent()
             .let {
                 PendingIntent.getBroadcast(context, toRequestCode(hour, minute), it, PendingIntent.FLAG_UPDATE_CURRENT)
             }
@@ -81,6 +93,7 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
             AlarmManager.INTERVAL_DAY,
             alarmIntent
         )
+
         Log.v("scheduled", toRequestCode(hour, minute).toString())
     }
 
@@ -107,7 +120,7 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_timed_test, container, false)
-        viewAdapter = TimedTestAdapter(getViewModel().getSchedules().value)
+        viewAdapter = TimedTestAdapter(getViewModel())
         timeDialog = TimePickerDialog(context, this, 0, 0, true)
         timeDialog.setTitle("Schedule a time to run test")
 
@@ -143,7 +156,7 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
         (context as TitleSettable).setActionBarTitle("Timed Test")
         getViewModel().getSchedules().observe(this, Observer { data ->
             run {
-                viewAdapter.tests = data
+                viewAdapter.vm = getViewModel()
                 viewAdapter.notifyDataSetChanged()
                 ensureAlarm()
             }
