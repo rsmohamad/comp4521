@@ -18,8 +18,6 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import java.time.LocalTime
 import java.util.*
 
@@ -41,13 +39,24 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
     private lateinit var recyclerView: RecyclerView
     private lateinit var viewAdapter: TimedTestAdapter
     private lateinit var viewManager: RecyclerView.LayoutManager
-    private var hour: Int = 0
-    private var minute: Int = 0
+
     private lateinit var timeDialog: TimePickerDialog
     private lateinit var INTENT_ALARM: String
 
     private fun toRequestCode(hour: Int, minute: Int): Int {
         return hour * 100 + minute
+    }
+
+    private fun cancelAlarm(hour: Int, minute: Int) {
+        val alarmIntent = Intent(context, ScheduledTestBroadcastReceiver::class.java)
+            .apply { action = INTENT_ALARM }
+            .let {
+                PendingIntent.getBroadcast(context, toRequestCode(hour, minute), it, PendingIntent.FLAG_UPDATE_CURRENT)
+            }
+
+        val alarmManager = context?.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.cancel(alarmIntent)
+        Log.v("cancelled", toRequestCode(hour, minute).toString())
     }
 
     private fun scheduleAlarm(hour: Int, minute: Int) {
@@ -72,7 +81,7 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
             AlarmManager.INTERVAL_DAY,
             alarmIntent
         )
-        Log.v("scheduled", calendar.timeInMillis.toString())
+        Log.v("scheduled", toRequestCode(hour, minute).toString())
     }
 
     override fun onTimeSet(view: TimePicker?, hourOfDay: Int, minute: Int) {
@@ -88,11 +97,21 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_timed_test, container, false)
         viewAdapter = TimedTestAdapter(getViewModel().getSchedules().value)
-        timeDialog = TimePickerDialog(context, this, hour, minute, true)
+        timeDialog = TimePickerDialog(context, this, 0, 0, true)
         timeDialog.setTitle("Schedule a time to run test")
 
-        val addButton = view.findViewById<FloatingActionButton>(R.id.addScheduleButton)
-        addButton.setOnClickListener { timeDialog.show() }
+        view.findViewById<FloatingActionButton>(R.id.addScheduleButton)
+            .apply { setOnClickListener { timeDialog.show() } }
+
+        view.findViewById<FloatingActionButton>(R.id.deleteButton)
+            .apply {
+                setOnClickListener {
+                    run {
+                        getViewModel().getSchedules().value?.forEach { f -> cancelAlarm(f.time.hour, f.time.minute) }
+                        getViewModel().clearSchedules()
+                    }
+                }
+            }
 
         val br = ScheduledTestBroadcastReceiver()
         val filter = IntentFilter().apply { addAction(INTENT_ALARM) }
@@ -115,33 +134,11 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
             run {
                 viewAdapter.tests = data
                 viewAdapter.notifyDataSetChanged()
-                saveTests()
             }
         })
-        loadTests()
     }
 
     private fun getViewModel(): TimedTestViewModel {
         return ViewModelProviders.of(activity!!).get(TimedTestViewModel::class.java)
-    }
-
-    private fun loadTests() {
-        context?.let {
-            val sharedPref = it.getSharedPreferences("speed_test_app", Context.MODE_PRIVATE)
-            val serializedArr =
-                sharedPref.getString("schedules", Gson().toJson(ArrayList<TimedTestFragment.TimedTest>()))
-            val arrListType = object : TypeToken<ArrayList<TimedTest>>() {}.type
-            val arr = Gson().fromJson<List<TimedTestFragment.TimedTest>>(serializedArr, arrListType)
-            getViewModel().setSchedules(arr)
-        }
-    }
-
-    private fun saveTests() {
-        context?.let {
-            val sharedPref = it.getSharedPreferences("speed_test_app", Context.MODE_PRIVATE)
-            val editor = sharedPref.edit()
-            editor.putString("schedules", Gson().toJson(getViewModel().getSchedules().value))
-            editor.apply()
-        }
     }
 }

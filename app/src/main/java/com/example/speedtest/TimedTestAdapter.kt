@@ -3,7 +3,7 @@ package com.example.speedtest
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
+import android.widget.Switch
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.time.format.DateTimeFormatter
@@ -32,7 +32,7 @@ class TimedTestAdapter(var tests: List<TimedTestFragment.TimedTest>?) :
         private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("KK:mm a")
         fun bindData(data: TimedTestFragment.TimedTest) {
             view.findViewById<TextView>(R.id.timeLabel).text = data.time.format(dateFormatter)
-            view.findViewById<CheckBox>(R.id.enabled_box).isChecked = data.enabled
+            view.findViewById<Switch>(R.id.enabled_box).isChecked = data.enabled
         }
     }
 }

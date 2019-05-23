@@ -2,6 +2,7 @@ package com.example.speedtest
 
 import android.content.Context
 import android.location.Location
+import android.net.ConnectivityManager
 import android.os.AsyncTask
 import android.telephony.TelephonyManager
 import android.util.Log
@@ -38,6 +39,8 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
     protected var carrierName: String? = null
     protected var imei: String? = null
 
+    protected var isWifi: Boolean = true
+
     private val listener: ISpeedTestListener = object : ISpeedTestListener {
         override fun onCompletion(report: SpeedTestReport?) {
             if (report?.speedTestMode == SpeedTestMode.UPLOAD) {
@@ -73,9 +76,15 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
             try {
                 Log.v("location", "getting location")
                 currentLocation = Tasks.await(LocationServices.getFusedLocationProviderClient(it).lastLocation)
+
                 val tm = (it.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager)
                 carrierName = tm.networkOperatorName
                 imei = tm.imei
+
+                val cm = (it.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager)
+                val active = cm.activeNetworkInfo ?: return null
+                isWifi = (active.type == ConnectivityManager.TYPE_WIFI)
+
             } catch (e: SecurityException) {
 
             }
@@ -85,7 +94,6 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
         testSocket.uploadChunkSize = uploadChunkSize
         testSocket.addSpeedTestListener(listener)
         testSocket.startFixedDownload(speedTestUrl, testDuration, reportInterval)
-
         condition.await()
         lock.unlock()
 
@@ -114,24 +122,23 @@ abstract class SpeedTestTask(context: Context) : AsyncTask<Void, SpeedTestReport
 
     fun storeData() {
         val db = FirebaseFirestore.getInstance()
-        db.firestoreSettings = FirebaseFirestoreSettings.Builder().setTimestampsInSnapshotsEnabled(true).build()
 
-
-        val testResult = HashMap<String, Any?>()
-
-        testResult["download_rate"] = downloadReport?.transferRateBit?.toDouble()
-        testResult["upload_rate"] = uploadReport?.transferRateBit?.toDouble()
-        testResult["location_x"] = currentLocation?.longitude
-        testResult["location_y"] = currentLocation?.latitude
-        testResult["location_z"] = currentLocation?.altitude
-        testResult["timestamp"] = System.currentTimeMillis()
-        testResult["provider"] = carrierName
-        testResult["plan_mbps"] = ""
-        testResult["imei"] = imei
+        val testResult = TestResult(
+            downloadReport?.transferRateBit?.toDouble(),
+            uploadReport?.transferRateBit?.toDouble(),
+            currentLocation?.longitude,
+            currentLocation?.latitude,
+            currentLocation?.altitude,
+            System.currentTimeMillis(),
+            carrierName,
+            "",
+            imei,
+            isWifi
+        )
 
         Log.v("firestore", "storing data")
         db.collection("testResults")
-            .add(testResult)
+            .add(testResult.toMap())
             .addOnSuccessListener { Log.v("firestore", "test stored") }
             .addOnFailureListener { Log.v("firestore", "test store failed") }
     }

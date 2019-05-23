@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <TextView
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/downloadLabel" app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginStart="32dp" app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="16dp" app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="16dp" android:textStyle="bold"/>
+        <TextView
+                android:layout_width="48dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/uploadLabel"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginTop="16dp" app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="16dp" app:layout_constraintStart_toEndOf="@+id/downloadLabel"
+                android:layout_marginStart="16dp" android:textStyle="bold"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/timeLabel" app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="32dp"
+                android:layout_marginBottom="16dp" app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginTop="16dp" app:layout_constraintTop_toTopOf="parent" android:textStyle="bold"/>
+        <TextView
+                android:text="@string/label_download"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView3" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/downloadLabel"
+                app:layout_constraintStart_toStartOf="@+id/downloadLabel"
+                app:layout_constraintEnd_toEndOf="@+id/downloadLabel"/>
+        <TextView
+                android:text="@string/label_upload"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/textView8" android:layout_marginTop="8dp"
+                app:layout_constraintTop_toBottomOf="@+id/uploadLabel"
+                app:layout_constraintStart_toStartOf="@+id/uploadLabel"
+                app:layout_constraintEnd_toEndOf="@+id/uploadLabel"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
