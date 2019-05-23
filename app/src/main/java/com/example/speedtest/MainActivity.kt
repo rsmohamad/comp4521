@@ -388,9 +388,7 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
     }
 
     companion object {
-
         private val TAG = MainActivity::class.java.simpleName
-
         private val REQUEST_PERMISSIONS_REQUEST_CODE = 34
     }
 }
