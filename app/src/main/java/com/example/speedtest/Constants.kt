@@ -51,7 +51,6 @@ internal object Constants {
     val HKLOCATIONS = HashMap<String, LatLng>()
 
     init {
-        // San Francisco International Airport.
         HKLOCATIONS["HKUST"] = LatLng(22.337690, 114.265466)
         HKLOCATIONS["CHOIHUNG"] = LatLng(22.334886, 114.208981)
         HKLOCATIONS["HANGHAU"] = LatLng(22.315605, 114.264416)

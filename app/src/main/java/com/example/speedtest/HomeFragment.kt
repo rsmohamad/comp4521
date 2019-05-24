@@ -88,7 +88,7 @@ class HomeFragment : Fragment() {
         return view
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         (context as TitleSettable).setActionBarTitle("Home")
         attachUiToViewModel()

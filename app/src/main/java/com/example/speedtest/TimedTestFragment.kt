@@ -151,7 +151,7 @@ class TimedTestFragment : Fragment(), TimePickerDialog.OnTimeSetListener {
         return view
     }
 
-    override fun onAttach(context: Context?) {
+    override fun onAttach(context: Context) {
         super.onAttach(context)
         (context as TitleSettable).setActionBarTitle("Timed Test")
         getViewModel().getSchedules().observe(this, Observer { data ->
