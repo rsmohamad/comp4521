@@ -43,16 +43,18 @@ internal object Constants {
      */
     val GEOFENCE_EXPIRATION_IN_MILLISECONDS =
         GEOFENCE_EXPIRATION_IN_HOURS * 60 * 60 * 1000
-    val GEOFENCE_RADIUS_IN_METERS = 1609f // 1 mile, 1.6 km
+    val GEOFENCE_RADIUS_IN_METERS = 1609f * 5 // 1 mile, 1.6 km
 
     /**
      * Map for storing information about airports in the San Francisco bay area.
      */
-    val HKLOCATIONS = HashMap<String, LatLng>()
+    val HKLOCATIONS: HashMap<String, LatLng>
+        get() {
+            val rv = HashMap<String, LatLng>()
+            rv["HKUST"] = LatLng(22.337690, 114.265466)
+            rv["CHOIHUNG"] = LatLng(22.334886, 114.208981)
+            rv["HANGHAU"] = LatLng(22.315605, 114.264416)
+            return rv
+        }
 
-    init {
-        HKLOCATIONS["HKUST"] = LatLng(22.337690, 114.265466)
-        HKLOCATIONS["CHOIHUNG"] = LatLng(22.334886, 114.208981)
-        HKLOCATIONS["HANGHAU"] = LatLng(22.315605, 114.264416)
-    }
 }

@@ -8,17 +8,6 @@ import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-data class GeofenceTest(val name: String, val lat: Double, val long: Double, val enabled: Boolean) {
-    override fun equals(other: Any?): Boolean {
-        val rhs: GeofenceTest
-        try {
-            rhs = (other as GeofenceTest)
-        } catch (e: Exception) {
-            return false
-        }
-        return rhs.name == name && rhs.lat == lat && rhs.long == long
-    }
-}
 
 class GeofenceViewModel(app: Application) : AndroidViewModel(app) {
     private val locationTests: MutableLiveData<List<GeofenceTest>> = MutableLiveData()

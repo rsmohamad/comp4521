@@ -2,6 +2,7 @@ package com.example.speedtest
 
 import android.Manifest
 import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
@@ -11,7 +12,6 @@ import android.preference.PreferenceManager
 import android.provider.Settings
 import android.util.Log
 import android.view.View
-import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.navigation.NavController
@@ -20,10 +20,13 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.OnCompleteListener
 import com.google.android.gms.tasks.Task
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.snackbar.Snackbar
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import java.util.*
 
 class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void> {
@@ -42,23 +45,13 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
      * Used when requesting to add or remove geofences.
      */
     private var mGeofencePendingIntent: PendingIntent? = null
-
-    // Buttons for kicking off the process of adding or removing geofences.
-    private var mAddGeofencesButton: Button? = null
-    private var mRemoveGeofencesButton: Button? = null
-
     private var mPendingGeofenceTask = PendingGeofenceTask.ADD
 
     /**
      * Builds and returns a GeofencingRequest. Specifies the list of geofences to be monitored.
      * Also specifies how the geofence notifications are initially triggered.
      */
-    private// The INITIAL_TRIGGER_ENTER flag indicates that geofencing service should trigger a
-    // GEOFENCE_TRANSITION_ENTER notification when the geofence is added and if the device
-    // is already inside that geofence.
-    // Add the geofences to be monitored by geofencing service.
-    // Return a GeofencingRequest.
-    val geofencingRequest: GeofencingRequest
+    private val geofencingRequest: GeofencingRequest
         get() {
             val builder = GeofencingRequest.Builder()
             builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
@@ -73,10 +66,7 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
      *
      * @return A PendingIntent for the IntentService that handles geofence transitions.
      */
-    private// Reuse the PendingIntent if we already have it.
-    // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-    // addGeofences() and removeGeofences().
-    val geofencePendingIntent: PendingIntent?
+    private val geofencePendingIntent: PendingIntent?
         get() {
             if (mGeofencePendingIntent != null) {
                 return mGeofencePendingIntent
@@ -207,12 +197,19 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
         }
     }
 
-    /**
-     * This sample hard codes geofence data. A real app might dynamically create geofences based on
-     * the user's location.
-     */
     private fun populateGeofenceList() {
-        for ((key, value) in Constants.HKLOCATIONS) {
+
+        var locs = Constants.HKLOCATIONS
+
+        val sharedPref = getSharedPreferences("speed_test_app", Context.MODE_PRIVATE)
+        val serializedArr =
+            sharedPref.getString("locations", Gson().toJson(ArrayList<GeofenceTest>()))
+        val arrListType = object : TypeToken<ArrayList<GeofenceTest>>() {}.type
+        val arr = Gson().fromJson<List<GeofenceTest>>(serializedArr, arrListType)
+
+        arr.forEach { l -> locs[l.name] = LatLng(l.lat, l.long) }
+
+        for ((key, value) in locs) {
 
             mGeofenceList!!.add(
                 Geofence.Builder()
@@ -313,8 +310,6 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
             Manifest.permission.ACCESS_FINE_LOCATION
         )
 
-        // Provide an additional rationale to the user. This would happen if the user denied the
-        // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             Log.i(TAG, "Displaying permission rationale to provide additional context.")
             showSnackbar(
@@ -329,9 +324,6 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
                 })
         } else {
             Log.i(TAG, "Requesting permission")
-            // Request permission. It's possible this can be auto answered if device policy
-            // sets the permission in a given state or the user denied the permission
-            // previously and checked "Never ask again".
             ActivityCompat.requestPermissions(
                 this@MainActivity,
                 arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
@@ -349,25 +341,12 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
     ) {
         Log.i(TAG, "onRequestPermissionResult")
         if (requestCode == REQUEST_PERMISSIONS_REQUEST_CODE) {
-            if (grantResults.size <= 0) {
-                // If user interaction was interrupted, the permission request is cancelled and you
-                // receive empty arrays.
+            if (grantResults.isEmpty()) {
                 Log.i(TAG, "User interaction was cancelled.")
             } else if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Log.i(TAG, "Permission granted.")
                 performPendingGeofenceTask()
             } else {
-                // Permission denied.
-
-                // Notify the user via a SnackBar that they have rejected a core permission for the
-                // app, which makes the Activity useless. In a real app, core permissions would
-                // typically be best requested during a welcome-screen flow.
-
-                // Additionally, it is important to remember that a permission might have been
-                // rejected without asking the user for permission (device policy or "Never ask
-                // again" prompts). Therefore, a user interface affordance is typically implemented
-                // when permissions are denied. Otherwise, your app could appear unresponsive to
-                // touches or interactions which have required permissions.
                 showSnackbar(
                     R.string.permission_denied_explanation, R.string.settings,
                     View.OnClickListener {
@@ -389,6 +368,6 @@ class MainActivity : AppCompatActivity(), TitleSettable, OnCompleteListener<Void
 
     companion object {
         private val TAG = MainActivity::class.java.simpleName
-        private val REQUEST_PERMISSIONS_REQUEST_CODE = 34
+        const val REQUEST_PERMISSIONS_REQUEST_CODE = 34
     }
 }

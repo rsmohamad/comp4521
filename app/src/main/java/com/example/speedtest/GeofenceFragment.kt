@@ -62,7 +62,7 @@ class GeofenceFragment : Fragment() {
         context?.let {
             val locationPickerIntent = LocationPickerActivity.Builder()
                 .withLocation(22.3375457, 114.2656919)
-                .withGeolocApiKey("AIzaSyDHCgDQ_aI5Kq9PMZzvB_CqlX2tkWxp6KI")
+                .withGeolocApiKey(getString(R.string.geoloc_key))
                 .withSearchZone("hk_EN")
                 .withDefaultLocaleSearchZone()
                 .shouldReturnOkOnBackPressed()
