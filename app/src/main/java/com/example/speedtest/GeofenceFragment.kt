@@ -62,17 +62,14 @@ class GeofenceFragment : Fragment() {
         context?.let {
             val locationPickerIntent = LocationPickerActivity.Builder()
                 .withLocation(22.3375457, 114.2656919)
+                .withGeolocApiKey("AIzaSyDHCgDQ_aI5Kq9PMZzvB_CqlX2tkWxp6KI")
                 .withSearchZone("hk_EN")
                 .withDefaultLocaleSearchZone()
                 .shouldReturnOkOnBackPressed()
-                .withStreetHidden()
-                .withCityHidden()
-                .withZipCodeHidden()
                 .withSatelliteViewHidden()
                 .withGooglePlacesEnabled()
                 .withGoogleTimeZoneEnabled()
                 .withVoiceSearchHidden()
-                .withUnnamedRoadHidden()
                 .build(it)
 
             startActivityForResult(locationPickerIntent, 1)
